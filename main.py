@@ -84,7 +84,7 @@ def generate_text():
 
     last_point_index = generated_text.rfind(".")
     if last_point_index > 0:
-        generated_text = generated_text[0:last_point_index+1]
+        generated_text = generated_text[0:last_point_index + 1]
     return generated_text
 
 
