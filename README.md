@@ -8,6 +8,7 @@ The Typing Speed Test is a Python application that allows users to test their ty
 - Allows users to retry the test for additional practice.
 
 ## How to Run
+To use the Typing Speed Test application, follow these steps:
 
 1. Clone this repository to your local machine.
 
@@ -20,18 +21,26 @@ git clone https://github.com/snkorkmaz/TypingSpeedTest.git
 pip install -r requirements.txt
 ```
 
-3. Navigate to the Project Directory:
+3. Make sure you have obtained an API key for the News API. If you don't have one, you can sign up for an account and get your API key from [News API](https://newsapi.org/).
+   1. Visit the [News API website](https://newsapi.org/) and sign up for an account if you haven't already.
+   2. Once logged in, navigate to your account dashboard.
+   3. You will find your API key listed on the dashboard. Copy the API key.
+
+5. Once you have obtained your API key, open the `main.py` file in a text editor.
+   
+6. Locate the `NEWS_API_KEY` variable in the code and replace `"YOUR_API_KEY"` with your actual API key.
+
 ```bash
-cd TypingSpeedTest
+NEWS_API_KEY = "YOUR_API_KEY"
 ```
-3. Run the application by executing the `main.py` file:
+    
+7. Save the `main.py` file after making the changes.
+
+8. Run the application by executing the `main.py` file:
 ```bash
 python main.py
 ```
-4. Starting the Test: Click on the "Start" button to begin the typing test.
-5. Typing: Type the displayed text accurately and quickly into the input field.
-6. Stopping the Test: Click on the "Stop" button to end the test and view your results.
-7. Retry: Optionally, click on the "Try again!" button to retry the typing test.
+
 
 ## Usage
 
