@@ -1,5 +1,5 @@
+from difflib import SequenceMatcher
 from tkinter import *
-from tkinter import filedialog, ttk
 from tkinter.ttk import Style
 import requests
 from bs4 import BeautifulSoup
@@ -18,10 +18,29 @@ FONT_NAME = "Arial"
 
 # SET UP API CONSTANTS
 NEWS_ENDPOINT = "http://newsapi.org/v2/top-headlines"
-NEWS_API_KEY = "c5b72e2ce9f84dc1af0d050a1da5fa54"
+NEWS_API_KEY = "YOUR_API_KEY"
+text = ""
+start_time = time.time()
+elapsed_time = time.time() - start_time
 
 
 # ---------------------------- FUNCTIONS ------------------------------- #
+
+def center_window(window, width, height):
+    """
+        Centers the Tkinter window on the screen.
+    """
+    # Get screen width and height
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    # Calculate position window
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+
+    # Set window position
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
 
 def get_random_article_url():
     params = {
@@ -37,6 +56,10 @@ def get_random_article_url():
 
 
 def extract_text(url):
+    """
+        Retrieves a random article URL from the TechCrunch news source using the News API and returns the URL of that
+        article.
+    """
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     paragraphs = soup.find_all("p")  # Find the text paragraphs
@@ -45,58 +68,105 @@ def extract_text(url):
 
 
 def generate_text():
+    """
+        Generates a text containing at most 100 words extracted from a random article and returns a string containing at
+        most 100 words from that article.
+    """
     random_article_url = get_random_article_url()
     extracted_text = extract_text(random_article_url)
     words = extracted_text.split()
-    return ' '.join(words[:100])
+
+    # Ensure that the text contains at most 100 words
+    if len(words) >= 100:
+        generated_text = ' '.join(words[:100])
+    else:
+        generated_text = ' '.join(words)
+
+    return generated_text
 
 
 def start():
-    initial_text_field.grid_forget()
+    """
+        Starts the typing speed test.
+        This function generates the text for the typing test, hides the initial text and start button,
+        displays the generated text, entry field, and stop button, and records the start time of the test.
+    """
+    global text, start_time
+    text = generate_text()  # generate the text
+    initial_text_field.grid_forget()  # remove initial text from window
+    start_button.grid_forget()  # remove start button
     text_field.insert(END, text)
-    text_field.grid(row=1, column=1, columnspan=4)
-    text_entry_field.grid(row=2, column=1, columnspan=4, padx=10, pady=10)
-    start_button.grid_forget()
-    stop_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+    text_field.grid(row=1, column=1, columnspan=4)  # display generated text
+    text_entry_field.grid(row=2, column=1, columnspan=4, padx=10, pady=10)  # display entry field
+    stop_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)  # display stop button
+    start_time = time.time()
 
 
 def stop():
-    text_field.grid_forget()
-    stop_button.grid_forget()
-    text_entry_field.grid_forget()
+    """
+        Stops the typing speed test, calculates results, and displays them.
+        This function calculates results of the typing test by calling calculate_results function,
+        removes the text, entry field, and stop button from the window, displays the test results,
+        and displays the retry button.
+    """
+    global elapsed_time
+    elapsed_time = time.time() - start_time
+    text_field.grid_forget()  # remove text from window
+    stop_button.grid_forget()  # remove stop button from window
+    text_entry_field.grid_forget()  # remove entry field from window
+    wpm, accuracy = calculate_results(text_field.get("1.0", END), text_entry_field.get("1.0", END))
     results = f"""Your Test Results
     
-        Words Per Minute (WPM): [Your WPM Score]
+        Words Per Minute (WPM): {wpm}
 
-        Accuracy: [Your Accuracy Percentage]
+        Accuracy: {accuracy} %
     """
     results_text_field.insert(END, results)
-    results_text_field.grid(row=1, column=1, columnspan=4)
-    retry_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+    results_text_field.grid(row=1, column=1, columnspan=4)  # display results
+    retry_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)  # display retry button
 
 
 def retry():
-    global text
-    text = generate_text()
-    results_text_field.grid_forget()
-    retry_button.grid_forget()
-    results_text_field.delete(1.0, END)
-    initial_text_field.grid(row=1, column=1, columnspan=4)
-    start_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+    """
+        Resets the typing speed test to its initial state for another attempt.
+
+        This function removes the test results and retry button from the window,
+        clears the entry field, and displays the initial text and start button.
+    """
+    results_text_field.grid_forget()  # remove results from display
+    retry_button.grid_forget()  # remove retry button from display
+    results_text_field.delete(1.0, END)  # clear results
+    text_entry_field.delete(1.0, END)
+    initial_text_field.grid(row=1, column=1, columnspan=4)  # display initial text
+    start_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)  # display start button
 
 
+def calculate_results(generated_text, input_text):
+    """
+        Calculates the words per minute (WPM) and accuracy of the typing speed test and returns a tuple containing the
+        words per minute (WPM) and accuracy ratio.
+    """
+    if len(input_text) - 1 == 0:
+        wpm = 0
+        similarity_ratio = 0
+    else:
+        # Words per minute (WPM) = (Total Typed Characters) / (5 * elapsed time  in minutes)
+        wpm = len(input_text) - 1 / (5 * elapsed_time)
 
-# ---------------------------- MAIN  ------------------------------- #
+        # Calculate accuracy
+        seq_matcher = SequenceMatcher(None, generated_text, input_text)
+        similarity_ratio = seq_matcher.ratio()
 
-text = generate_text()
+    return wpm, similarity_ratio
+
 
 # ---------------------------- UI SETUP ------------------------------- #
 
 # CREATE A WINDOW
 window = Tk()
 window.title("Typing Speed Test")
-window.geometry("900x800")
 window.config(padx=25, pady=25, bg=LIGHT_MINT)
+center_window(window, 900, 800)
 
 # CREATE CUSTOM STYLE FOR ENTRY WIDGET
 style = Style()
