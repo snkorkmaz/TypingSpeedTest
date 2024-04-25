@@ -4,6 +4,9 @@ from tkinter.ttk import Style
 import requests
 from bs4 import BeautifulSoup
 import random
+import time
+
+from customtkinter import CTkButton
 
 # ---------------------------- CONSTANTS ------------------------------- #
 
@@ -48,6 +51,41 @@ def generate_text():
     return ' '.join(words[:100])
 
 
+def start():
+    initial_text_field.grid_forget()
+    text_field.insert(END, text)
+    text_field.grid(row=1, column=1, columnspan=4)
+    text_entry_field.grid(row=2, column=1, columnspan=4, padx=10, pady=10)
+    start_button.grid_forget()
+    stop_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+
+
+def stop():
+    text_field.grid_forget()
+    stop_button.grid_forget()
+    text_entry_field.grid_forget()
+    results = f"""Your Test Results
+    
+        Words Per Minute (WPM): [Your WPM Score]
+
+        Accuracy: [Your Accuracy Percentage]
+    """
+    results_text_field.insert(END, results)
+    results_text_field.grid(row=1, column=1, columnspan=4)
+    retry_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+
+
+def retry():
+    global text
+    text = generate_text()
+    results_text_field.grid_forget()
+    retry_button.grid_forget()
+    results_text_field.delete(1.0, END)
+    initial_text_field.grid(row=1, column=1, columnspan=4)
+    start_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+
+
+
 # ---------------------------- MAIN  ------------------------------- #
 
 text = generate_text()
@@ -69,19 +107,47 @@ style.configure('Custom.TEntry', bordercolor=MIDDLE_TURQUOISE, borderwidth=3, re
 heading = Label(text="Typing Speed Test ", fg=DARK_TURQUOISE, bg=LIGHT_MINT, font=(FONT_NAME, 35, "bold"))
 heading.grid(column=1, row=0, columnspan=4, pady=50)
 
+# CREATE INITIAL TEXT
+initial_text_field = Text(window, bg=LIGHT_MINT, font=(FONT_NAME, 12), wrap=WORD, height=10, borderwidth=0,
+                          state=NORMAL)
+initial_text = """Welcome to the Typing Speed Test!
+
+This application allows you to test your typing speed and accuracy. When you're ready, click on the "Start" button. You'll then be presented with a text that you need to type into the text field. Once you're finished, click "Stop" to view your results.
+
+Best of luck testing your typing skills!
+
+"""
+initial_text_field.insert(END, initial_text)
+initial_text_field.grid(row=1, column=1, columnspan=4)
+
 # CREATE TEXT
-text_field = Text(window, bg=LIGHT_MINT, font=(FONT_NAME, 12), state=NORMAL, wrap=WORD, height=10)
-text_field.insert(END, text)
-text_field.grid(row=1, column=1, columnspan=4)
+text_field = Text(window, bg=LIGHT_MINT, font=(FONT_NAME, 12), wrap=WORD, height=10, borderwidth=0)
+# text_field.insert(END, text)
 
 # CREATE TEXT ENTRY FIELD
-# CREATE TEXT ENTRY FIELD
-# CREATE TEXT ENTRY FIELD
-text_entry_field = Text(window, width=80, height=10, font=('Arial', 12), wrap='word')
-text_entry_field.grid(row=2, column=1, columnspan=4, padx=10, pady=10)
+text_entry_field = Text(window, width=80, font=('Arial', 12), wrap='word', height=10, borderwidth=2)
 
-# Create a button to retrieve the entered text
-# button = Button(window, text="Get Text", command=on_button_click)
-# button.pack()
+# CREATE A START BUTTON
+start_button = CTkButton(window, text="Start")
+start_button.configure(text_color="white", fg_color=MIDDLE_TURQUOISE, bg_color=LIGHT_MINT, hover_color=DARK_TURQUOISE,
+                       corner_radius=50, width=220, command=start,
+                       font=(FONT_NAME, 15, "bold"))
+start_button.grid(row=3, column=1, columnspan=4, padx=10, pady=10)
+
+# CREATE A STOP BUTTON
+stop_button = CTkButton(window, text="Stop")
+stop_button.configure(text_color="white", fg_color=MIDDLE_TURQUOISE, bg_color=LIGHT_MINT, hover_color=DARK_TURQUOISE,
+                      corner_radius=50, width=220, command=stop,
+                      font=(FONT_NAME, 15, "bold"))
+
+# CREATE TEXT FOR TEST RESULTS
+results_text_field = Text(window, bg=LIGHT_MINT, font=(FONT_NAME, 12), wrap=WORD, height=10, borderwidth=0,
+                          state=NORMAL)
+
+# CREATE A STOP BUTTON
+retry_button = CTkButton(window, text="Try gain!")
+retry_button.configure(text_color="white", fg_color=MIDDLE_TURQUOISE, bg_color=LIGHT_MINT, hover_color=DARK_TURQUOISE,
+                       corner_radius=50, width=220, command=retry,
+                       font=(FONT_NAME, 15, "bold"))
 
 window.mainloop()
