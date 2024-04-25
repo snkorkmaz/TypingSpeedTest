@@ -56,7 +56,7 @@ text = generate_text()
 
 # CREATE A WINDOW
 window = Tk()
-window.title("Image Watermark")
+window.title("Typing Speed Test")
 window.geometry("900x800")
 window.config(padx=25, pady=25, bg=LIGHT_MINT)
 
